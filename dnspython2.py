@@ -38,6 +38,16 @@ IPV4_REGEX = r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b"
 IPV6_REGEX = r"\b(?:[0-9a-fA-F]{1,4}:){2,7}[0-9a-fA-F]{1,4}\b"
 DOMAIN_REGEX = r"\b([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\b"
 
+TLD_LIST = [
+    "fr",
+    "gouv.fr",
+    "com",
+    "net",
+    "org",
+    "info",
+    "biz"
+]
+
 
 def pretty_banner(title: str):
     console.rule(f"[bold blue]{title}[/bold blue]")
@@ -194,6 +204,60 @@ def format_parsed_txt(parsed_type: str, parsed_data: dict) -> str:
     return "\n".join(lines)
 
 
+def find_matching_tld(domain: str, tld_list: list) -> str | None:
+    """Retourne le TLD le plus long qui correspond au domaine."""
+    domain = domain.lower()
+
+    matching = []
+    for tld in tld_list:
+        if domain.endswith("." + tld) or domain == tld:
+            matching.append(tld)
+
+    if not matching:
+        return None
+
+    # On prend le TLD le plus spécifique (le plus long)
+    return max(matching, key=len)
+
+
+def crawl_to_tld(domain: str, tld_list: list) -> list:
+    """Déduit les domaines parents jusqu'au TLD (exclu)."""
+    domain = domain.strip(".").lower()
+    labels = domain.split(".")
+
+    tld = find_matching_tld(domain, tld_list)
+    if not tld:
+        return []
+
+    tld_parts = tld.split(".")
+    stop_index = len(labels) - len(tld_parts)
+
+    parents = []
+    for i in range(1, stop_index):
+        parent = ".".join(labels[i:])
+        parents.append(parent)
+
+    return parents
+
+
+def display_parent_domains(domain: str, parents: list, tld: str):
+    pretty_banner("Cartographie des domaines parents")
+
+    if not parents:
+        console.print("[yellow]Aucun domaine parent trouvé.[/yellow]")
+        return
+
+    table = Table(box=box.SIMPLE)
+    table.add_column("Niveau")
+    table.add_column("Domaine")
+
+    for i, parent  in enumerate (parents, start=1):
+        table.add_row(str(i), parent)
+
+    console.print(f"[bold]TLD détecté :[/bold] {tld}")
+    console.print(table)
+
+
 def display_results(domain: str, record_type: str, answers):
     """Affiche les résultats DNS sous forme de tableau."""
     pretty_banner(f"Résultats : {domain} ({record_type})")
@@ -263,6 +327,11 @@ def main():
     # Démonstration itérative
     iterative_resolution(domain)
 
+    #Crawl vers le TLD
+    tld = find_matching_tld(domain, TLD_LIST)
+    parents = crawl_to_tld(domain, TLD_LIST)
+
+    display_parent_domains(domain, parents, tld)
 
 if __name__ == "__main__":
     main()
