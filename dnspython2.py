@@ -332,6 +332,41 @@ def scan_srv_records(domain: str):
     return found
 
 
+def reverse_dns(ip: str):
+    """Résolution reverse DNS (PTR) d'une adresse IP."""
+    try:
+        result = dns.resolver.resolve_address(ip)
+        return [r.to_text().rstrip(".") for r in result]
+    except Exception:
+        return []
+
+
+def reverse_dns_from_domain(domain: str):
+    pretty_banner("Reverse DNS")
+
+    try:
+        answers = dns.resolver.resolve(domain, "A")
+    except Exception:
+        console.print("[red]Impossible de résoudre le domaine en IP.[/red]")
+        return
+
+    table = Table(box=box.SIMPLE)
+    table.add_column("IP")
+    table.add_column("Reverse DNS (PTR)")
+
+    for r in answers:
+        ip = r.to_text()
+        ptrs = reverse_dns(ip)
+
+        if ptrs:
+            for ptr in ptrs:
+                table.add_row(ip, ptr)
+        else:
+            table.add_row(ip, "[grey]Aucun PTR[/grey]")
+
+    console.print(table)
+
+
 def display_parent_domains(domain: str, parents: list, tld: str):
     pretty_banner("Cartographie des domaines parents")
 
@@ -461,6 +496,9 @@ def main():
     # Scan SRV
     srv_results = scan_srv_records(domain)
     display_srv_results(srv_results)
+
+    # Reverse DNS
+    reverse_dns_from_domain(domain)
 
 if __name__ == "__main__":
     main()
