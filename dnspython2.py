@@ -9,7 +9,7 @@ import requests
 from rich.console import Console
 from rich.table import Table
 from rich import box
-hello
+
 console = Console()
 
 ROOT_SERVERS = [
