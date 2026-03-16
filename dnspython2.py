@@ -78,7 +78,6 @@ KNOWN_SRV_SERVICES = [
     ("_autodiscover", "_tcp"),
     ("_msrpc", "_tcp"),
     ("_gc", "_tcp"),
-    ("_gc", "_tcp"),
 
     # Web / Infra
     ("_http", "_tcp"),
