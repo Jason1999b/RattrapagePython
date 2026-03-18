@@ -137,11 +137,14 @@ def iterative_resolution(domain: str):
 
     query = dns.message.make_query(domain, dns.rdatatype.A)
 
-    for root in ROOT_SERVERS:
-        console.print(f"[yellow]Interrogation du serveur racine {root}[/yellow]")
+    current_server = ROOT_SERVERS[0]
+    console.print(f"[yellow]Départ avec le serveur racine : {current_server}[/yellow]")
+
+    for numero_etape in range(3):
+        console.print(f"\n--- Étape {numero_etape + 1} ---")
 
         try:
-            response = dns.query.udp(query, root, timeout=2.0)
+            response = dns.query.udp(query, current_server, timeout=2.0)
 
             ns_records = []
             for rr in response.additional:
