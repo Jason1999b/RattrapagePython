@@ -132,16 +132,16 @@ def follow_cname(domain: str):
 
 
 def iterative_resolution(domain: str):
-    """Démonstration d'une résolution itérative simplifiée depuis les root servers."""
-    pretty_banner("Résolution itérative (depuis les serveurs racine)")
-
-    query = dns.message.make_query(domain, dns.rdatatype.A)
+    """Simplified iterative resolution demonstration from root servers."""
+    pretty_banner("Iterative resolution (from root servers)")
 
     current_server = ROOT_SERVERS[0]
-    console.print(f"[yellow]Départ avec le serveur racine : {current_server}[/yellow]")
+    console.print(f"[yellow]Starting with root server: {current_server}[/yellow]")
 
-    for numero_etape in range(3):
-        console.print(f"\n--- Étape {numero_etape + 1} ---")
+    for step_number in range(3):
+        console.print(f"\n--- Step {step_number + 1} ---")
+
+        query = dns.message.make_query(domain, dns.rdatatype.A)
 
         try:
             response = dns.query.udp(query, current_server, timeout=2.0)
@@ -152,12 +152,12 @@ def iterative_resolution(domain: str):
                     ns_records.append(rr.items[0].address)
 
             if ns_records:
-                console.print(f"→ Serveurs DNS trouvés : {ns_records}")
+                console.print(f"→ DNS servers found: {ns_records}")
                 return
         except Exception:
             continue
 
-    console.print("[red]Impossible de continuer la résolution itérative (simplifiée).[/red]")
+    console.print("[red]Unable to continue iterative resolution (simplified).[/red]")
 
 
 def parse_txt_generic(txt: str):
