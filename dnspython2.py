@@ -153,13 +153,20 @@ def iterative_resolution(domain: str):
 
             console.print("Not yet the answer, looking for next server...")
 
-            ns_records = []
-            for rr in response.additional:
-                if rr.rdtype == dns.rdatatype.A:
-                    ns_records.append(rr.items[0].address)
+            next_server_found = False
 
-            if ns_records:
-                console.print(f"→ DNS servers found: {ns_records}")
+            for record in response.additional:
+                if record.rdtype == dns.rdatatype.A:
+                    for item in record:
+                        current_server = item.address
+                        console.print(f"→ Next server: {current_server}")
+                        next_server_found = True
+                        break
+                if next_server_found:
+                    break
+
+            if not next_server_found:
+                console.print("[red]No next server found, stopping.[/red]")
                 return
         except Exception:
             continue
