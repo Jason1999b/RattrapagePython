@@ -146,6 +146,13 @@ def iterative_resolution(domain: str):
         try:
             response = dns.query.udp(query, current_server, timeout=2.0)
 
+            if response.answer:
+                console.print("[green]✓ FINAL ANSWER FOUND![/green]")
+                console.print(f"Result: {response.answer[0]}")
+                return
+
+            console.print("Not yet the answer, looking for next server...")
+
             ns_records = []
             for rr in response.additional:
                 if rr.rdtype == dns.rdatatype.A:
