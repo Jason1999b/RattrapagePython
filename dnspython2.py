@@ -173,7 +173,7 @@ def iterative_resolution(domain: str):
             console.print(f"[red]Error: {error}[/red]")
             return
 
-    console.print("[red]Unable to continue iterative resolution (simplified).[/red]")
+    console.print("[yellow]Maximum of 3 steps reached, stopping.[/yellow]")
 
 
 def parse_txt_generic(txt: str):
