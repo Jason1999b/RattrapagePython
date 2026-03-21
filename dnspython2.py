@@ -168,8 +168,10 @@ def iterative_resolution(domain: str):
             if not next_server_found:
                 console.print("[red]No next server found, stopping.[/red]")
                 return
-        except Exception:
-            continue
+
+        except Exception as error:
+            console.print(f"[red]Error: {error}[/red]")
+            return
 
     console.print("[red]Unable to continue iterative resolution (simplified).[/red]")
 
