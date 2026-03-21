@@ -28,13 +28,13 @@ ROOT_SERVERS = [
     "202.12.27.33"     # m
 ]
 
-# Liste de tous les types DNS à interroger
+# To ensure complete DNS information discovery
 ALL_RECORD_TYPES = [
     "A", "AAAA", "MX", "NS", "TXT",
     "CNAME", "SOA", "SRV", "CAA", "PTR"
 ]
 
-# Regex pour le parsing des TXT
+# To extract structured data from free-form text records
 IPV4_REGEX = r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b"
 IPV6_REGEX = r"\b(?:[0-9a-fA-F]{1,4}:){2,7}[0-9a-fA-F]{1,4}\b"
 DOMAIN_REGEX = r"\b([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\b"
@@ -49,11 +49,11 @@ STATIC_TLD_LIST = [
     "biz"
 ]
 
-#Public Suffix List pour mise à jour dynamique
+# To keep TLD list up-to-date without code changes
 PSL_URL = "https://publicsuffix.org/list/public_suffix_list.dat"
 
 KNOWN_SRV_SERVICES = [
-    # Messagerie / VoIP
+    # To discover messaging and communication services
     ("_sip", "_tcp"),
     ("_sip", "_udp"),
     ("_sips", "_tcp"),
@@ -63,7 +63,7 @@ KNOWN_SRV_SERVICES = [
     ("_imaps", "_tcp"),
     ("_submission", "_tcp"),
 
-    # Annuaire / Auth
+    # To find authentication and directory services
     ("_ldap", "_tcp"),
     ("_ldaps", "_tcp"),
     ("_kerberos", "_tcp"),
@@ -71,7 +71,7 @@ KNOWN_SRV_SERVICES = [
     ("_kpasswd", "_tcp"),
     ("_kpasswd", "_udp"),
 
-    # Microsoft / Enterprise
+    # To detect Microsoft enterprise infrastructure
     ("_sipinternal", "_tcp"),
     ("_sipinternaltls", "_tcp"),
     ("_sipfederationtls", "_tcp"),
@@ -79,18 +79,18 @@ KNOWN_SRV_SERVICES = [
     ("_msrpc", "_tcp"),
     ("_gc", "_tcp"),
 
-    # Web / Infra
+    # To identify web and file transfer services
     ("_http", "_tcp"),
     ("_https", "_tcp"),
     ("_ftp", "_tcp"),
     ("_ftps", "_tcp"),
 
-    # Database
+    # To locate database servers
     ("_mysql", "_tcp"),
     ("_postgresql", "_tcp"),
     ("_mongodb", "_tcp"),
 
-    # Autres
+    # To find infrastructure services
     ("_ntp", "_udp"),
     ("_dns", "_udp"),
     ("_dns", "_tcp"),
@@ -102,18 +102,18 @@ def pretty_banner(title: str):
 
 
 def resolve_record(domain: str, record_type: str):
-    """Résolution standard (récursive)."""
+    """Standard recursive DNS resolution."""
     resolver = dns.resolver.Resolver()
     try:
         answers = resolver.resolve(domain, record_type)
         return answers
     except Exception as e:
-        console.print(f"[red]Erreur lors de la résolution {record_type}: {e}[/red]")
+        console.print(f"[red]Error resolving {record_type}: {e}[/red]")
         return None
 
 
 def follow_cname(domain: str):
-    """Suit la chaîne CNAME complète."""
+    """Follow complete CNAME chain."""
     chain = []
     resolver = dns.resolver.Resolver()
 
@@ -177,7 +177,7 @@ def iterative_resolution(domain: str):
 
 
 def parse_txt_generic(txt: str):
-    """Parse générique pour trouver IP et domaines."""
+    """Generic parser to find IPs and domains."""
     ipv4 = re.findall(IPV4_REGEX, txt)
     ipv6 = re.findall(IPV6_REGEX, txt)
     domains = re.findall(DOMAIN_REGEX, txt)
@@ -190,7 +190,7 @@ def parse_txt_generic(txt: str):
 
 
 def parse_spf(txt: str):
-    """Parse spécialisé SPF."""
+    """Specialized SPF parser."""
     ips = []
     domains = []
 
@@ -209,7 +209,7 @@ def parse_spf(txt: str):
 
 
 def parse_dmarc(txt: str):
-    """Parse spécialisé DMARC."""
+    """Specialized DMARC parser."""
     domains = []
 
     fields = txt.split(";")
@@ -225,7 +225,7 @@ def parse_dmarc(txt: str):
 
 
 def parse_txt_record(txt: str):
-    """Choisit le bon parseur TXT."""
+    """Choose the appropriate TXT parser."""
     txt = txt.strip('"')
     txt_lower = txt.lower()
 
@@ -239,29 +239,29 @@ def parse_txt_record(txt: str):
 
 
 def format_parsed_txt(parsed_type: str, parsed_data: dict) -> str:
-    """Formate proprement les résultats TXT pour l'affichage."""
+    """Format TXT results for display."""
     lines = []
 
     if parsed_type != "GENERIC":
         lines.append(f"[bold]{parsed_type}[/bold]")
 
     if "ips" in parsed_data and parsed_data["ips"]:
-        lines.append("IPs :")
+        lines.append("IPs:")
         for ip in parsed_data["ips"]:
             lines.append(f"  • {ip}")
 
     if "ipv4" in parsed_data and parsed_data["ipv4"]:
-        lines.append("IPv4 :")
+        lines.append("IPv4:")
         for ip in parsed_data["ipv4"]:
             lines.append(f"  • {ip}")
 
     if "ipv6" in parsed_data and parsed_data["ipv6"]:
-        lines.append("IPv6 :")
+        lines.append("IPv6:")
         for ip in parsed_data["ipv6"]:
             lines.append(f"  • {ip}")
 
     if "domains" in parsed_data and parsed_data["domains"]:
-        lines.append("Domains :")
+        lines.append("Domains:")
         for domain in parsed_data["domains"]:
             lines.append(f"  • {domain}")
 
@@ -272,7 +272,7 @@ def format_parsed_txt(parsed_type: str, parsed_data: dict) -> str:
 
 
 def fetch_psl() -> list:
-    """Télécharge et parse la public suffix list."""
+    """Download and parse the public suffix list."""
     response = requests.get(PSL_URL, timeout=5)
     response.raise_for_status()
 
@@ -287,7 +287,7 @@ def fetch_psl() -> list:
 
 
 def find_matching_tld(domain: str, tld_list: list) -> str | None:
-    """Retourne le TLD le plus long qui correspond au domaine."""
+    """Return the longest matching TLD for the domain."""
     domain = domain.lower()
 
     matching = []
@@ -298,12 +298,12 @@ def find_matching_tld(domain: str, tld_list: list) -> str | None:
     if not matching:
         return None
 
-    # On prend le TLD le plus spécifique (le plus long)
+    # To handle complex TLDs like .co.uk correctly
     return max(matching, key=len)
 
 
 def crawl_to_tld(domain: str, tld_list: list) -> list:
-    """Déduit les domaines parents jusqu'au TLD (exclu)."""
+    """Derive parent domains up to the TLD (excluded)."""
     domain = domain.strip(".").lower()
     labels = domain.split(".")
 
@@ -323,8 +323,8 @@ def crawl_to_tld(domain: str, tld_list: list) -> list:
 
 
 def scan_srv_records(domain: str):
-    """Teste les services SRV connus pour un domaine."""
-    pretty_banner("Scan des enregistrements SRV")
+    """Test known SRV services for a domain."""
+    pretty_banner("SRV Records Scan")
 
     resolver = dns.resolver.Resolver()
     found = []
@@ -351,7 +351,7 @@ def scan_srv_records(domain: str):
 
 
 def reverse_dns(ip: str):
-    """Résolution reverse DNS (PTR) d'une adresse IP."""
+    """Reverse DNS (PTR) resolution of an IP address."""
     try:
         result = dns.resolver.resolve_address(ip)
         return [r.to_text().rstrip(".") for r in result]
@@ -365,7 +365,7 @@ def reverse_dns_from_domain(domain: str):
     try:
         answers = dns.resolver.resolve(domain, "A")
     except Exception:
-        console.print("[red]Impossible de résoudre le domaine en IP.[/red]")
+        console.print("[red]Unable to resolve domain to IP.[/red]")
         return
 
     table = Table(box=box.SIMPLE)
@@ -380,33 +380,33 @@ def reverse_dns_from_domain(domain: str):
             for ptr in ptrs:
                 table.add_row(ip, ptr)
         else:
-            table.add_row(ip, "[grey]Aucun PTR[/grey]")
+            table.add_row(ip, "[grey]No PTR[/grey]")
 
     console.print(table)
 
 
 def display_parent_domains(domain: str, parents: list, tld: str):
-    pretty_banner("Cartographie des domaines parents")
+    pretty_banner("Parent Domains Mapping")
 
     if not parents:
-        console.print("[yellow]Aucun domaine parent trouvé.[/yellow]")
+        console.print("[yellow]No parent domains found.[/yellow]")
         return
 
     table = Table(box=box.SIMPLE)
-    table.add_column("Niveau")
-    table.add_column("Domaine")
+    table.add_column("Level")
+    table.add_column("Domain")
 
     for i, parent  in enumerate (parents, start=1):
         table.add_row(str(i), parent)
 
-    console.print(f"[bold]TLD détecté :[/bold] {tld}")
+    console.print(f"[bold]Detected TLD:[/bold] {tld}")
     console.print(table)
 
 
 
 def display_srv_results(results: list):
     if not results:
-        console.print("[yellow]Aucun service SRV trouvé.[/yellow]")
+        console.print("[yellow]No SRV services found.[/yellow]")
         return
 
     table = Table(box=box.SIMPLE)
@@ -429,15 +429,15 @@ def display_srv_results(results: list):
 
 
 def display_results(domain: str, record_type: str, answers):
-    """Affiche les résultats DNS sous forme de tableau."""
-    pretty_banner(f"Résultats : {domain} ({record_type})")
+    """Display DNS results as a table."""
+    pretty_banner(f"Results: {domain} ({record_type})")
 
     table = Table(box=box.SIMPLE, show_lines=True)
     table.add_column("Type")
-    table.add_column("Résultat")
+    table.add_column("Result")
 
     if answers is None:
-        table.add_row(record_type, "Aucun résultat")
+        table.add_row(record_type, "No result")
         console.print(table)
         return
 
@@ -459,63 +459,63 @@ def display_results(domain: str, record_type: str, answers):
 
 
 def resolve_all_records(domain: str):
-    """Résout absolument tous les types DNS définis dans ALL_RECORD_TYPES."""
-    pretty_banner(f"Toutes les entrées DNS pour {domain}")
+    """Resolve all DNS types defined in ALL_RECORD_TYPES."""
+    pretty_banner(f"All DNS entries for {domain}")
 
     for rtype in ALL_RECORD_TYPES:
-        console.print(f"[cyan]→ Résolution {rtype}[/cyan]")
+        console.print(f"[cyan]→ Resolving {rtype}[/cyan]")
         answers = resolve_record(domain, rtype)
         display_results(domain, rtype, answers)
 
 def main():
     if len(sys.argv) < 2:
-        console.print("[red]Usage: python dns_explorer.py <domaine> [type|ALL][/red]")
+        console.print("[red]Usage: python dns_explorer.py <domain> [type|ALL][/red]")
         sys.exit(1)
 
     domain = sys.argv[1]
     record_type = sys.argv[2].upper() if len(sys.argv) > 2 else "A"
 
-    pretty_banner("Explorateur DNS Amélioré")
+    pretty_banner("Advanced DNS Explorer")
 
-    # Chargement de la liste des TLD
+    # To accurately identify domain boundaries
     try:
         TLD_LIST = fetch_psl()
-        console.print("[green]Public Suffix List trouvée.[/green]")
+        console.print("[green]Public Suffix List found.[/green]")
     except Exception:
-        console.print("[yellow]Impossible de trouver la PSL, utilisation de la liste statique.[/yellow]")
+        console.print("[yellow]Unable to fetch PSL, using static list.[/yellow]")
         TLD_LIST = STATIC_TLD_LIST
 
-    # Crawl vers le TLD
+    # To show domain hierarchy structure
     tld = find_matching_tld(domain, TLD_LIST)
     parents = crawl_to_tld(domain, TLD_LIST)
 
     display_parent_domains(domain, parents, tld)
 
-    # Chaîne CNAME
+    # To follow redirect chains
     cname_chain = follow_cname(domain)
     if cname_chain:
-        table = Table(title="Chaîne CNAME", box=box.SIMPLE)
+        table = Table(title="CNAME Chain", box=box.SIMPLE)
         table.add_column("Alias")
-        table.add_column("Cible")
+        table.add_column("Target")
         for alias, target in cname_chain:
             table.add_row(alias, target)
         console.print(table)
 
-    # Résolution des types DNS
+    # To resolve requested DNS record types
     if record_type == "ALL":
         resolve_all_records(domain)
     else:
         answers = resolve_record(domain, record_type)
         display_results(domain, record_type, answers)
 
-    # Démonstration itérative
+    # To demonstrate how DNS works internally
     iterative_resolution(domain)
 
-    # Scan SRV
+    # To discover available network services
     srv_results = scan_srv_records(domain)
     display_srv_results(srv_results)
 
-    # Reverse DNS
+    # To identify server hostnames
     reverse_dns_from_domain(domain)
 
 if __name__ == "__main__":
