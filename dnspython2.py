@@ -443,6 +443,11 @@ def display_results(domain: str, record_type: str, answers):
 
     answers_list = list(answers)
 
+    if not answers_list:
+        table.add_row(record_type, "No result")
+        console.print(table)
+        return
+
     for r in answers_list:
         if record_type == "TXT":
            parsed_type, parsed_data = parse_txt_record(r.to_text())
