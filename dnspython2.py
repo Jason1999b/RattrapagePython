@@ -477,6 +477,9 @@ def resolve_all_records(domain: str):
 
 def main():
     parser = argparse.ArgumentParser(description="Advanced DNS Explorer")
+    parser.add_argument("domain", help="Domain name to query")
+
+    args = parser.parse_args()
 
     if len(sys.argv) < 2:
         console.print("[red]Usage: python dns_explorer.py <domain> [type|ALL][/red]")
