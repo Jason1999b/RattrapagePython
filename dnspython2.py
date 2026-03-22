@@ -441,7 +441,9 @@ def display_results(domain: str, record_type: str, answers):
         console.print(table)
         return
 
-    for r in answers:
+    answers_list = list(answers)
+
+    for r in answers_list:
         if record_type == "TXT":
            parsed_type, parsed_data = parse_txt_record(r.to_text())
 
