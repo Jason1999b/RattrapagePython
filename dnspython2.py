@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import argparse
 import dns.resolver
 import dns.message
 import dns.query
@@ -475,6 +476,8 @@ def resolve_all_records(domain: str):
         display_results(domain, rtype, answers)
 
 def main():
+    parser = argparse.ArgumentParser(description="Advanced DNS Explorer")
+
     if len(sys.argv) < 2:
         console.print("[red]Usage: python dns_explorer.py <domain> [type|ALL][/red]")
         sys.exit(1)
