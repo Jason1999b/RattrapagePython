@@ -482,12 +482,8 @@ def main():
 
     args = parser.parse_args()
 
-    if len(sys.argv) < 2:
-        console.print("[red]Usage: python dns_explorer.py <domain> [type|ALL][/red]")
-        sys.exit(1)
-
-    domain = sys.argv[1]
-    record_type = sys.argv[2].upper() if len(sys.argv) > 2 else "A"
+    domain = args.domain
+    record_type = args.type.upper()
 
     pretty_banner("Advanced DNS Explorer")
 
