@@ -478,6 +478,7 @@ def resolve_all_records(domain: str):
 def main():
     parser = argparse.ArgumentParser(description="Advanced DNS Explorer")
     parser.add_argument("domain", help="Domain name to query")
+    parser.add_argument("--type", default="A", help="DNS record type (default: A)")
 
     args = parser.parse_args()
 
