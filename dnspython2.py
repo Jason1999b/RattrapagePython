@@ -105,6 +105,8 @@ def pretty_banner(title: str):
 def resolve_record(domain: str, record_type: str):
     """Standard recursive DNS resolution."""
     resolver = dns.resolver.Resolver()
+    resolver.timeout = 2
+    resolver.lifetime = 2
     try:
         answers = resolver.resolve(domain, record_type)
         return answers
