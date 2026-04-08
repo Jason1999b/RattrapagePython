@@ -118,12 +118,24 @@ def follow_cname(domain: str):
     chain = []
     resolver = dns.resolver.Resolver()
 
+    # We keep track of already visited domains
+    already_seen = set()
+    already_seen.add(domain)
+
     while True:
         try:
             ans = resolver.resolve(domain, "CNAME")
             target = ans[0].target.to_text()
+            target_clean = target.rstrip(".")
+
+            if target_clean in already_seen:
+                console.print(f"[red]⚠ Infinite CNAME loop detected: {target_clean} already visited, stopping.[/red]")
+                break
+
             chain.append((domain, target))
-            domain = target.rstrip(".")
+            already_seen.add(target_clean)
+            domain = target_clean
+
         except dns.resolver.NoAnswer:
             break
         except Exception:
