@@ -114,6 +114,15 @@ def resolve_record(domain: str, record_type: str):
         console.print(f"[red]Error resolving {record_type}: {e}[/red]")
         return None
 
+def resolve_record_silent(domain: str, record_type: str):
+    resolver = dns.resolver.Resolver()
+    resolver.timeout = 2
+    resolver.lifetime = 2
+    try:
+        answers = resolver.resolve(domain, record_type)
+        return answers
+    except Exception:
+        return None
 
 def follow_cname(domain: str):
     """Follow complete CNAME chain."""
