@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import sys
 import argparse
 import dns.resolver
 import dns.message
@@ -115,6 +114,7 @@ def resolve_record(domain: str, record_type: str):
         return None
 
 def resolve_record_silent(domain: str, record_type: str):
+    """Same as resolve_record but silences errors, used for bulk scans."""
     resolver = dns.resolver.Resolver()
     resolver.timeout = 2
     resolver.lifetime = 2
