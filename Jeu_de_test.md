@@ -14,7 +14,7 @@ Scanner sncf.fr doit identifier des enregistrements MX se terminant par mxa-0036
 
 Scanner apple.com doit permettre de trouver un SOA avec ns-ext-prod.jackfruit.apple.com. dnscontact.apple.com. 2026040804 300 300 3628800 300.
 
-Scanner respire.co doit identifier un pointage vers shops.myshopify.com.
+Scanner respire.co doit révéler une infrastructure hébergée chez Shopify (myshopify.com) via le Reverse DNS.
 
 Scanner pass.culture.fr doit révéler une infrastructure hébergée chez Google Cloud (googleusercontent.com) via le Reverse DNS.
 
