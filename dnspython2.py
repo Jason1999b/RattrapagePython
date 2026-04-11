@@ -350,26 +350,23 @@ def scan_srv_records(domain: str):
     """Test known SRV services for a domain."""
     pretty_banner("SRV Records Scan")
 
-    resolver = dns.resolver.Resolver()
     found = []
 
     for service, proto in KNOWN_SRV_SERVICES:
         name = f"{service}.{proto}.{domain}"
+        answers = resolve_record_silent(name, "SRV")
 
-        try:
-            answers = resolver.resolve(name, "SRV")
-            for r in answers:
-                found.append({
-                    "service": f"{service}.{proto}",
-                    "priority": r.priority,
-                    "weight": r.weight,
-                    "port": r.port,
-                    "target": r.target.to_text().rstrip(".")
-                })
-        except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
+        if answers is None:
             continue
-        except Exception:
-            continue
+
+        for r in answers:
+            found.append({
+                "service": f"{service}.{proto}",
+                "priority": r.priority,
+                "weight": r.weight,
+                "port": r.port,
+                "target": r.target.to_text().rstrip(".")
+            })
 
     return found
 
