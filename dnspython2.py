@@ -507,7 +507,6 @@ def main():
 
     pretty_banner("Advanced DNS Explorer")
 
-    # To accurately identify domain boundaries
     try:
         TLD_LIST = fetch_psl()
         console.print("[green]Public Suffix List found.[/green]")
@@ -515,13 +514,11 @@ def main():
         console.print("[yellow]Unable to fetch PSL, using static list.[/yellow]")
         TLD_LIST = STATIC_TLD_LIST
 
-    # To show domain hierarchy structure
     tld = find_matching_tld(domain, TLD_LIST)
     parents = crawl_to_tld(domain, TLD_LIST)
 
     display_parent_domains(domain, parents, tld)
 
-    # To follow redirect chains
     cname_chain = follow_cname(domain)
     if cname_chain:
         table = Table(title="CNAME Chain", box=box.SIMPLE)
@@ -531,21 +528,17 @@ def main():
             table.add_row(alias, target)
         console.print(table)
 
-    # To resolve requested DNS record types
     if record_type == "ALL":
         resolve_all_records(domain)
     else:
         answers = resolve_record(domain, record_type)
         display_results(domain, record_type, answers)
 
-    # To demonstrate how DNS works internally
     iterative_resolution(domain)
 
-    # To discover available network services
     srv_results = scan_srv_records(domain)
     display_srv_results(srv_results)
 
-    # To identify server hostnames
     reverse_dns_from_domain(domain)
 
 if __name__ == "__main__":
